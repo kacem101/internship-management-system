@@ -1,0 +1,100 @@
+# ===========================
+# ENSCS Internship Management
+# Root .gitignore
+# ===========================
+
+# ─── Spring Boot / Maven ───────────────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven wrapper
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ─── Spring Boot specifics ────────────────────────────────────────────────────
+application-local.properties
+application-local.yml
+application-prod.properties
+application-prod.yml
+*.env
+
+# Uploaded files directory (runtime)
+uploads/
+upload-dir/
+files/
+
+# ─── React / Node ─────────────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+build/
+.vite/
+
+# Dependency lock files (keep one, ignore the other)
+# Uncomment the one you're NOT using:
+# yarn.lock
+# package-lock.json
+
+# ─── Environment & Secrets ────────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# ─── IDE & Editors ────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vscode/
+*.code-workspace
+
+# ─── OS Files ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Testing & Coverage ───────────────────────────────────────────────────────
+coverage/
+*.lcov
+.nyc_output/
+
+# ─── TypeScript ───────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── Misc ─────────────────────────────────────────────────────────────────────
+*.pid
+*.seed
+*.pid.lock
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
