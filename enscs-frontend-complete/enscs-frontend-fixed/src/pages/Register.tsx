@@ -217,9 +217,16 @@ export function Register() {
                   Continue <ChevronRight size={16} />
                 </button>
               ) : (
-                <button type="submit" disabled={registerMutation.isPending} className="auth-submit-btn flex-1 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSubmit(onSubmit)}
+                  disabled={registerMutation.isPending}
+                  className="auth-submit-btn flex-1 flex items-center justify-center gap-2"
+                >
                   {registerMutation.isPending ? (
-                    <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" /></svg> Creating…</>
+                    <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
+                    </svg> Creating…</>
                   ) : <><Check size={16} /> Create Account</>}
                 </button>
               )}

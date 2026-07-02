@@ -5,8 +5,11 @@ import com.enscs.internship.enums.ApplicationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,4 +25,18 @@ public interface InternshipApplicationRepository extends JpaRepository<Internshi
     Optional<InternshipApplication> findByStudentIdAndOfferId(Long studentId, Long offerId);
 
     boolean existsByStudentIdAndOfferId(Long studentId, Long offerId);
+
+    @Query("""
+    SELECT a
+    FROM InternshipApplication a
+    WHERE a.status = com.enscs.internship.enums.ApplicationStatus.ACCEPTED
+      AND (a.offer.endDate + (CASE WHEN a.offer.reportDeadlineDays IS NOT NULL THEN a.offer.reportDeadlineDays ELSE :defaultDays END) day) < CURRENT_DATE
+      AND NOT EXISTS (
+          SELECT r
+          FROM InternshipReport r
+          WHERE r.application = a
+            AND r.submittedAt IS NOT NULL
+      )
+    """)
+    List<InternshipApplication> findOverdueApplications(@Param("defaultDays") int defaultDays);
 }

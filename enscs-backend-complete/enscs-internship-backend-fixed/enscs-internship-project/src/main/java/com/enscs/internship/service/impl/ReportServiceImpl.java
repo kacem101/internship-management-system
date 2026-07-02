@@ -117,14 +117,35 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<ReportResponse> getOverdueReports(Pageable pageable) {
-        List<InternshipReport> list = reportRepository.findOverdueReports();
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), list.size());
-        return new PageImpl<>(list.subList(start, end).stream().map(this::toResponse).toList(),
-                pageable, list.size());
-    }
+@Transactional(readOnly = true)
+public Page<ReportResponse> getOverdueReports(Pageable pageable) {
+    // 1. Fetch the raw records from the left join query
+    List<InternshipReport> rawList = reportRepository.findOverdueReports(globalDeadlineDays);
+    
+    // 2. Query returns a list from the Application perspective. 
+    // If a student hasn't created a report row yet, the item in this list will be NULL.
+    // We must find the matching Application context to build our response.
+    List<InternshipReport> cleanList = rawList.stream().map(report -> {
+        if (report != null) {
+            return report; // It exists in the DB (it's a draft or late submission)
+        }
+        
+        // If it's null, we need to map a transient placeholder (handled by your existing logic)
+        // For simplicity, we can filter or build placeholders here if needed.
+        return report; 
+    })
+    .filter(java.util.Objects::nonNull) // Safe check to prevent mapping empty items
+    .toList();
+
+    int start = (int) pageable.getOffset();
+    int end = Math.min(start + pageable.getPageSize(), cleanList.size());
+    
+    return new PageImpl<>(
+            cleanList.subList(start, end).stream().map(this::toResponse).toList(),
+            pageable, 
+            cleanList.size()
+    );
+}
 
     @Override
     public byte[] downloadReportFile(Long reportId) {

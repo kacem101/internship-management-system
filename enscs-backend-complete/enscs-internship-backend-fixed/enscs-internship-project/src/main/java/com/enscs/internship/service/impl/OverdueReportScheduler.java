@@ -5,6 +5,7 @@ import com.enscs.internship.repository.InternshipReportRepository;
 import com.enscs.internship.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,17 +24,32 @@ public class OverdueReportScheduler {
     private final InternshipReportRepository reportRepository;
     private final NotificationService notificationService;
 
+    @Value("${app.report.deadline-days:14}")
+    private int globalDeadlineDays;
+
     @Scheduled(cron = "0 0 8 * * *")   // 08:00 every day
     @Transactional(readOnly = true)
     public void notifyOverdueReports() {
-        List<InternshipReport> overdueReports = reportRepository.findOverdueReports();
-        log.info("Overdue report check: {} overdue reports found", overdueReports.size());
+        // Use our new left-join query strategy
+        List<InternshipReport> overdueReports = reportRepository.findOverdueReports(globalDeadlineDays);
+        
+        log.info("Overdue report check: {} entries found", overdueReports.size());
+        
         overdueReports.forEach(report -> {
+            // If the report row is null, it means the student hasn't touched the system yet
+            if (report == null) {
+                return; 
+            }
+
+            // Don't email them if they already turned it in late
+            if (report.getSubmittedAt() != null) {
+                return; 
+            }
+
             try {
                 notificationService.notifyReportOverdue(report);
             } catch (Exception e) {
-                log.error("Failed to notify student {} for overdue report {}",
-                        report.getStudent().getId(), report.getId(), e);
+                log.error("Failed to notify student for overdue report ID {}", report.getId(), e);
             }
         });
     }

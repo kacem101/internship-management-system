@@ -31,7 +31,10 @@ export const registerSchema = z.object({
   // Student fields
   matricule: z.string().optional(),
   department: z.string().optional(),
-  yearOfStudy: z.coerce.number().min(1, 'Year must be between 1 and 5').max(5, 'Year must be between 1 and 5').optional(),
+  yearOfStudy: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(1, 'Year must be between 1 and 5').max(5, 'Year must be between 1 and 5').optional()
+  ),
   phoneNumber: z.string().optional(),
   // Supervisor fields
   specialization: z.string().optional(),
