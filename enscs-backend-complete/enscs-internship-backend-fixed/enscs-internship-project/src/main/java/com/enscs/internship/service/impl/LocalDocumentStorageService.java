@@ -25,9 +25,10 @@ import java.util.UUID;
 public class LocalDocumentStorageService implements DocumentStorageService {
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-            "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "image/jpeg", "image/png", "image/webp"
     );
 
     private final Path baseStorageLocation;
@@ -92,8 +93,8 @@ public class LocalDocumentStorageService implements DocumentStorageService {
 
     private void validateContentType(MultipartFile file) {
         String contentType = file.getContentType();
-        if (contentType == null || contentType.isBlank()) {
-            throw new StorageException("Missing or unknown Content-Type. File looks suspicious.");
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new StorageException("File type not allowed: " + contentType);
         }
     }
 

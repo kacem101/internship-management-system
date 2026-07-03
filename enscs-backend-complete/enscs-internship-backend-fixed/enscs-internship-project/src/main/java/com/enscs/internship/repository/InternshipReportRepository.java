@@ -24,7 +24,7 @@ public interface InternshipReportRepository extends JpaRepository<InternshipRepo
     SELECT r 
     FROM InternshipApplication a
     LEFT JOIN InternshipReport r ON r.application = a
-    WHERE a.status = com.enscs.internship.enums.ApplicationStatus.ACCEPTED
+    WHERE a.status = com.enscs.internship.enums.ApplicationStatus.CONFIRMED
       AND (a.offer.endDate + (CASE WHEN a.offer.reportDeadlineDays IS NOT NULL THEN a.offer.reportDeadlineDays ELSE :defaultDays END) day) < CURRENT_DATE
       AND (r IS NULL OR r.isLate = true)
     """)

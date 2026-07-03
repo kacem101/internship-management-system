@@ -26,6 +26,12 @@ public interface InternshipApplicationRepository extends JpaRepository<Internshi
 
     boolean existsByStudentIdAndOfferId(Long studentId, Long offerId);
 
+    boolean existsByStudentIdAndStatus(Long studentId, com.enscs.internship.enums.ApplicationStatus status);
+
+    List<InternshipApplication> findByStudentIdAndStatusIn(Long studentId, Iterable<com.enscs.internship.enums.ApplicationStatus> statuses);
+
+    long countByOfferIdAndStatusIn(Long offerId, Iterable<com.enscs.internship.enums.ApplicationStatus> statuses);
+
     @Query("""
     SELECT a
     FROM InternshipApplication a

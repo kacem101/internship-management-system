@@ -91,6 +91,15 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationService.updateApplicationStatus(id, status, adminNotes));
     }
 
+    @PatchMapping("/{id}/confirm")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Confirm an accepted application (Student only)")
+    public ResponseEntity<ApplicationResponse> confirmApplication(
+            @PathVariable Long id,
+            @RequestParam Long studentId) {
+        return ResponseEntity.ok(applicationService.confirmApplication(studentId, id));
+    }
+
     /**
      * SPRINT 1 — withdraw now accepts optional JSON body with withdrawalReason.
      * Required when status is UNDER_REVIEW (min 20 chars). Blocked within cutoff days of start.

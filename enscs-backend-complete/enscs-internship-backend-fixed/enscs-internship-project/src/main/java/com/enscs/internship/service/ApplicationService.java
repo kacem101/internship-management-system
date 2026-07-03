@@ -23,6 +23,8 @@ public interface ApplicationService {
 
     ApplicationResponse updateApplicationStatus(Long applicationId, ApplicationStatus status, String adminNotes);
 
+    ApplicationResponse confirmApplication(Long studentId, Long applicationId);
+
     /** SPRINT 1 — withdrawal with reason + cutoff enforcement */
     void withdrawApplication(Long applicationId, Long studentId, WithdrawRequest request);
 }

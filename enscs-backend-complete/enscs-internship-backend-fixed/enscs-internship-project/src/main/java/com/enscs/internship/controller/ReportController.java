@@ -1,7 +1,10 @@
 package com.enscs.internship.controller;
 
+import com.enscs.internship.dto.request.ReportVerificationRequest;
 import com.enscs.internship.dto.response.ReportResponse;
+import com.enscs.internship.dto.response.ReportVerificationResponse;
 import com.enscs.internship.service.ReportService;
+import com.enscs.internship.service.ReportVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +17,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReportController {
 
     private final ReportService reportService;
-    private final com.enscs.internship.service.ReportVerificationService reportVerificationService;
+    private final ReportVerificationService reportVerificationService;
 
     @PostMapping(value = "/applications/{applicationId}/submit",
                  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -83,20 +88,34 @@ public class ReportController {
         return buildDownloadResponse(data, "daily_log_" + id + ".pdf");
     }
 
+    /**
+     * Company Contact confirms or disputes a report. The verifier identity is taken
+     * from the authenticated principal (JWT), never from a client-supplied ID —
+     * a request param here would let any COMPANY_CONTACT impersonate another one.
+     * Company-ownership matching happens inside the service, not here.
+     */
     @PostMapping("/{id}/verification")
     @PreAuthorize("hasRole('COMPANY_CONTACT')")
     @Operation(summary = "Submit or update a report verification (Company Contact)")
-    public ResponseEntity<com.enscs.internship.dto.response.ReportVerificationResponse> submitVerification(
+    public ResponseEntity<ReportVerificationResponse> submitVerification(
             @PathVariable Long id,
-            @RequestParam Long companyContactId,
-            @RequestBody com.enscs.internship.dto.request.ReportVerificationRequest request) {
-        return ResponseEntity.ok(reportVerificationService.submit(id, companyContactId, request));
+            @AuthenticationPrincipal UserDetails principal,
+            @RequestBody ReportVerificationRequest request) {
+        return ResponseEntity.ok(reportVerificationService.submit(id, principal.getUsername(), request));
     }
 
+    /**
+     * Readable by: the owning student, any Supervisor/Admin, or a Company Contact
+     * whose company matches the internship's company. All of that is enforced in
+     * the service based on the authenticated principal — not left to the caller.
+     */
     @GetMapping("/{id}/verification")
+    @PreAuthorize("hasAnyRole('STUDENT', 'SUPERVISOR', 'ADMIN', 'COMPANY_CONTACT')")
     @Operation(summary = "Get report verification")
-    public ResponseEntity<com.enscs.internship.dto.response.ReportVerificationResponse> getVerification(@PathVariable Long id) {
-        return ResponseEntity.ok(reportVerificationService.getByReportId(id));
+    public ResponseEntity<ReportVerificationResponse> getVerification(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(reportVerificationService.getByReportId(id, principal.getUsername()));
     }
 
     private ResponseEntity<byte[]> buildDownloadResponse(byte[] data, String filename) {

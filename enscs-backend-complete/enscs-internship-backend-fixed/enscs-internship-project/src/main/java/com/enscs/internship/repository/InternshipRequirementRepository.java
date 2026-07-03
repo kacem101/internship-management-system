@@ -14,4 +14,6 @@ public interface InternshipRequirementRepository extends JpaRepository<Internshi
     List<InternshipRequirement> findByStudentId(Long studentId);
     List<InternshipRequirement> findByStatus(RequirementStatus status);
     List<InternshipRequirement> findByStatusIn(List<RequirementStatus> statuses);
+    List<InternshipRequirement> findByStudentIdAndStatusIn(Long studentId, List<RequirementStatus> statuses);
+    Optional<InternshipRequirement> findTopByStudentIdOrderByCreatedAtDesc(Long studentId);
 }

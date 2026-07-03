@@ -1,7 +1,11 @@
 package com.enscs.internship.repository;
 
 import com.enscs.internship.entity.InternshipOffer;
+import com.enscs.internship.enums.ApplicationStatus;
 import com.enscs.internship.enums.OfferStatus;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,4 +28,8 @@ public interface InternshipOfferRepository extends JpaRepository<InternshipOffer
                                        Pageable pageable);
 
     Page<InternshipOffer> findByCreatedByIdAndStatus(Long adminId, OfferStatus status, Pageable pageable);
+
+    @Query("SELECT COUNT(a) FROM InternshipApplication a WHERE a.offer.id = :offerId AND a.status IN :statuses")
+    Integer countByOfferIdAndStatusIn(@Param("offerId") Long offerId,
+                                     @Param("statuses") List<ApplicationStatus> statuses);
 }
