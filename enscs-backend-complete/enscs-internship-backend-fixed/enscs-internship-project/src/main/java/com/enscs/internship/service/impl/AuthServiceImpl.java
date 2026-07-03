@@ -4,11 +4,16 @@ import com.enscs.internship.dto.request.LoginRequest;
 import com.enscs.internship.dto.request.RegisterRequest;
 import com.enscs.internship.dto.response.AuthResponse;
 import com.enscs.internship.entity.Admin;
+import com.enscs.internship.entity.Company;
+import com.enscs.internship.entity.CompanyContact;
 import com.enscs.internship.entity.Student;
 import com.enscs.internship.entity.Supervisor;
 import com.enscs.internship.entity.User;
 import com.enscs.internship.enums.Role;
+import com.enscs.internship.enums.VerificationStatus;
 import com.enscs.internship.exception.BadRequestException;
+import com.enscs.internship.exception.ResourceNotFoundException;
+import com.enscs.internship.repository.CompanyRepository;
 import com.enscs.internship.repository.UserRepository;
 import com.enscs.internship.security.JwtService;
 import com.enscs.internship.service.AuthService;
@@ -24,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -38,6 +44,18 @@ public class AuthServiceImpl implements AuthService {
         User user = buildUserByRole(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
+
+        if (!user.isEnabled()) {
+            // Pending admin verification (currently: self-registered COMPANY_CONTACT accounts).
+            // No token is issued — the account cannot authenticate until an admin verifies it.
+            return AuthResponse.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .role(user.getRole().name())
+                    .fullName(user.getFullName())
+                    .token(null)
+                    .build();
+        }
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
         return AuthResponse.builder()
@@ -102,6 +120,26 @@ public class AuthServiceImpl implements AuthService {
                 a.setAdminCode(req.getAdminCode());
                 yield a;
             }
+            case COMPANY_CONTACT -> {
+                if (req.getCompanyId() == null) {
+                    throw new BadRequestException("companyId is required to register a company contact.");
+                }
+                Company company = companyRepository.findById(req.getCompanyId())
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Company not found: " + req.getCompanyId()));
+
+                CompanyContact cc = new CompanyContact();
+                cc.setFirstName(req.getFirstName());
+                cc.setLastName(req.getLastName());
+                cc.setEmail(req.getEmail());
+                cc.setRole(Role.COMPANY_CONTACT);
+                cc.setCompany(company);
+                cc.setJobTitle(req.getJobTitle());
+                cc.setVerificationStatus(VerificationStatus.PENDING);
+                cc.setEnabled(false);   // gate — cannot authenticate until an admin verifies them
+                yield cc;
+            }
+            default -> throw new IllegalArgumentException("Unexpected value: " + req.getRole());
         };
     }
 }

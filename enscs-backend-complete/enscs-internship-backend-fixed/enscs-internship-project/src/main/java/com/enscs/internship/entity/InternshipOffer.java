@@ -11,6 +11,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import com.enscs.internship.entity.Company;
+import com.enscs.internship.enums.OfferOrigin;
+import com.enscs.internship.enums.OfferVisibility;
+import com.enscs.internship.entity.Student;
 
 @Entity
 @Table(name = "internship_offers")
@@ -63,6 +67,23 @@ public class InternshipOffer {
 
     @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InternshipApplication> applications = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
+    @Enumerated(EnumType.STRING)
+    private OfferOrigin origin = OfferOrigin.PLATFORM_POSTED;
+
+    @Enumerated(EnumType.STRING)
+    private OfferVisibility visibility = OfferVisibility.PUBLIC;
+
+    @Column(nullable = false)
+    private Integer capacity = 1;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sourced_by_student_id")
+    private Student sourcedByStudent;
 
     @CreatedDate
     @Column(updatable = false)

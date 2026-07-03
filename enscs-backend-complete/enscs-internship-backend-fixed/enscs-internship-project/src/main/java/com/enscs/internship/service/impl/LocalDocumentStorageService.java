@@ -92,11 +92,8 @@ public class LocalDocumentStorageService implements DocumentStorageService {
 
     private void validateContentType(MultipartFile file) {
         String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            throw new StorageException(
-                    "File type not allowed: " + contentType +
-                    ". Allowed types: PDF, DOC, DOCX."
-            );
+        if (contentType == null || contentType.isBlank()) {
+            throw new StorageException("Missing or unknown Content-Type. File looks suspicious.");
         }
     }
 

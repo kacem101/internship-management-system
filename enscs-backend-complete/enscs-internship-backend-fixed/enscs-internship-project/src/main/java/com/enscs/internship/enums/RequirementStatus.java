@@ -1,0 +1,16 @@
+package com.enscs.internship.enums;
+
+public enum RequirementStatus {
+    NOT_STARTED,
+    APPLIED,
+    ACCEPTED_PENDING_CONFIRMATION,
+    CONFIRMED,
+    IN_PROGRESS,
+    REPORT_SUBMITTED,
+    REPORT_VERIFIED,
+    EVALUATED,
+    COMPLETED,
+    OVERDUE_NO_APPLICATION,
+    OVERDUE_NO_REPORT,
+    FAILED
+}

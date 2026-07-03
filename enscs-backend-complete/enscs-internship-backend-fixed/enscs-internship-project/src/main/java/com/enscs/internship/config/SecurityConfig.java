@@ -66,6 +66,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH,  "/api/offers/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/offers/**").hasRole("ADMIN")
 
+                // ── Companies / Contacts / Requirements / Attachments ─────────
+                .requestMatchers(HttpMethod.POST, "/api/companies").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/companies/*/verify").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/companies/*/contacts").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/companies/**").hasAnyRole("ADMIN", "SUPERVISOR", "COMPANY_CONTACT")
+                .requestMatchers("/api/company-contacts/**").hasRole("COMPANY_CONTACT")
+                .requestMatchers(HttpMethod.GET, "/api/requirements/me").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/requirements").hasAnyRole("ADMIN", "SUPERVISOR")
+                .requestMatchers("/api/attachments/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/reports/*/verification").hasRole("COMPANY_CONTACT")
+                .requestMatchers(HttpMethod.GET, "/api/reports/*/verification").authenticated()
+
                 // ── Applications ──────────────────────────────────────────────
                 .requestMatchers("/api/applications/**").authenticated()
 

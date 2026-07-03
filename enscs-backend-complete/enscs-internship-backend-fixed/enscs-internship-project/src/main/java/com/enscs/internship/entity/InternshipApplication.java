@@ -59,4 +59,9 @@ public class InternshipApplication {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private LocalDateTime confirmedAt;
+
+    @Column(columnDefinition = "TEXT")
+    private String autoWithdrawnReason;
 }

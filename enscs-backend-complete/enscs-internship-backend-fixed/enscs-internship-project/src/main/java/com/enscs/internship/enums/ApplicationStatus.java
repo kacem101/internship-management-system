@@ -5,5 +5,7 @@ public enum ApplicationStatus {
     UNDER_REVIEW,
     ACCEPTED,
     REJECTED,
-    WITHDRAWN
+    WITHDRAWN,
+    CONFIRMED,
+    WITHDRAWN_AUTO
 }

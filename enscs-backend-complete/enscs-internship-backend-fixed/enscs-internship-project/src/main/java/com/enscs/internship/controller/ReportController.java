@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReportController {
 
     private final ReportService reportService;
+    private final com.enscs.internship.service.ReportVerificationService reportVerificationService;
 
     @PostMapping(value = "/applications/{applicationId}/submit",
                  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -80,6 +81,22 @@ public class ReportController {
     public ResponseEntity<byte[]> downloadDailyLog(@PathVariable Long id) {
         byte[] data = reportService.downloadDailyLog(id);
         return buildDownloadResponse(data, "daily_log_" + id + ".pdf");
+    }
+
+    @PostMapping("/{id}/verification")
+    @PreAuthorize("hasRole('COMPANY_CONTACT')")
+    @Operation(summary = "Submit or update a report verification (Company Contact)")
+    public ResponseEntity<com.enscs.internship.dto.response.ReportVerificationResponse> submitVerification(
+            @PathVariable Long id,
+            @RequestParam Long companyContactId,
+            @RequestBody com.enscs.internship.dto.request.ReportVerificationRequest request) {
+        return ResponseEntity.ok(reportVerificationService.submit(id, companyContactId, request));
+    }
+
+    @GetMapping("/{id}/verification")
+    @Operation(summary = "Get report verification")
+    public ResponseEntity<com.enscs.internship.dto.response.ReportVerificationResponse> getVerification(@PathVariable Long id) {
+        return ResponseEntity.ok(reportVerificationService.getByReportId(id));
     }
 
     private ResponseEntity<byte[]> buildDownloadResponse(byte[] data, String filename) {

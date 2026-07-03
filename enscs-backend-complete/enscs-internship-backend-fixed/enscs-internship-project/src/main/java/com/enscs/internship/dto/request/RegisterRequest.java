@@ -39,4 +39,8 @@ public class RegisterRequest {
 
     // ── Admin-specific ────────────────────────────────────────────────────────
     private String adminCode;
+
+    // ── Company Contact-specific ────────────────────────────────────────────
+    private Long companyId;
+    private String jobTitle;
 }
